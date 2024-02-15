@@ -82,8 +82,46 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+ async function getEpisodesOfShow(id) { 
+  const response = await axios.get(`https://api.tvmaze.com/shows/${id}/episodes`) // call to api
+  //console.log(response);
+
+  return response.data.map(result => {     //returns array with id,name,season,number of episode
+    return {
+      id: result.id,
+      name: result.name,
+      season: result.season,
+      number: result.number,
+    }
+  });
+
+ }
 
 /** Write a clear docstring for this function... */
 
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes) {
+  $('#episodesList').empty();
+
+  for (let episode of episodes) {
+    const $item = $(
+      `<li>
+         ${episode.name}
+         (season ${episode.season}, episode ${episode.number})
+       </li>
+      `);
+
+    $('#episodesList').append($item);
+  }
+
+  $('#episodesArea').show();
+}
+
+async function getEpsAndDisp(e){
+  const showId = $(e.target).closest("[data-show-id]").data("show-id");
+
+  const episodes = await getEpisodesOfShow(showId);
+  populateEpisodes(episodes);
+}
+
+
+$showsList.on("click", ".Show-getEpisodes", getEpsAndDisp);
